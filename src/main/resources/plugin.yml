@@ -1,0 +1,6 @@
+name: Duels
+version: '${project.version}'
+main: me.lordmefloun.duels.Duels
+api-version: 1.16
+authors: [ LordMefloun ]
+description: 1v1 plugin project
