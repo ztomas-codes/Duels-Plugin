@@ -1,12 +1,24 @@
 Arenas:
   Arena1:
-    MapName:
+    MapName: TestovaciMapa
+    World: world
+    MapAuthor: LordMefloun
     Locations:
       1:
-        x:
-        y:
-        z:
+        x: -168
+        y: 98
+        z: 235
+        yaw: 86.6
+        pitch: 1.7
       2:
-        x:
-        y:
-        z:
+        x: -174
+        y: 98
+        z: 235
+        yaw: -92.2
+        pitch: 3.9
+
+SpawnLocation:
+  World: world
+  x: -52.00
+  y: 69.00
+  z: 110.00
