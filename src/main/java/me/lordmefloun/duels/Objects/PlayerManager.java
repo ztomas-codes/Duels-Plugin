@@ -11,7 +11,7 @@ public class PlayerManager {
     private UUID Uuid;
     private Game Game;
     public int PlayerNumber;
-    private static ArrayList<PlayerManager> Players = new ArrayList<>();
+    public static ArrayList<PlayerManager> Players = new ArrayList<>();
 
 
     public PlayerManager(UUID uuid, Game game, int PlayerNumber){

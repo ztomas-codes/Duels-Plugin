@@ -6,12 +6,16 @@ import me.lordmefloun.duels.Utils.Colors;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Game {
 
@@ -21,6 +25,10 @@ public class Game {
     private ArrayList<Location> Locations = new ArrayList<>();
 
     public GameStates GameState = GameStates.WAITING;
+    public ArrayList<Location> PlacedBlocks = new ArrayList<>();
+    private ItemStack[] KitItems;
+    private ItemStack[] KitArmor;
+    public String Kit;
     private String ArenaName;
     private String MapAuthor;
     private String MapName;
@@ -31,8 +39,14 @@ public class Game {
 
     public Game(String ArenaName){
         this.ArenaName = ArenaName;
-        this.MapName = Duels.main.getConfig().getString("Arenas." + ArenaName + ".MapName");
-        this.MapAuthor = Duels.main.getConfig().getString("Arenas." + ArenaName + ".MapAuthor");
+        try {
+            this.MapName = Duels.main.getConfig().getString("Arenas." + ArenaName + ".MapName");
+            this.MapAuthor = Duels.main.getConfig().getString("Arenas." + ArenaName + ".MapAuthor");
+            this.Kit = Duels.main.getConfig().getString("Arenas." + ArenaName + ".Kit");
+        }
+        catch (Exception e){
+            Bukkit.getLogger().warning("Error in creating arena (MapName or MapAuthor or Kit name is missing) " + getArenaName());
+        }
 
         ConfigurationSection configSection = Duels.main.getConfig().getConfigurationSection("Arenas." + ArenaName + ".Locations");
         for(String key : configSection.getKeys(false)){
@@ -50,7 +64,6 @@ public class Game {
 
         if(Locations.size() != 2){
             Bukkit.getLogger().warning("Error in creating arena (LocationsError) " + getArenaName());
-            Bukkit.getPluginManager().disablePlugin(Duels.main);
         }
 
         this.SpawnLocation = new Location(Bukkit.getWorld(Duels.main.getConfig().getString("SpawnLocation.World")),
@@ -59,6 +72,13 @@ public class Game {
                 Duels.main.getConfig().getDouble("SpawnLocation.z")
                 );
 
+        try {
+            KitArmor = ((List<ItemStack>) Duels.main.getConfig().get("Kits." + Kit + ".armor")).toArray(new ItemStack[0]);
+            KitItems = ((List<ItemStack>) Duels.main.getConfig().get("Kits." + Kit + ".items")).toArray(new ItemStack[0]);
+        }
+        catch (Exception e){
+            Bukkit.getLogger().warning("Error in creating arena (Arena Kit) " + getArenaName());
+        }
     }
 
 
@@ -104,7 +124,7 @@ public class Game {
     public void playerJoin(Player p){
         if (PlayerManager.getPlayerManagerFromPlayer(p) == null) {
 
-            if (this.GameState != GameStates.INGAME || this.GameState != GameStates.STARTING ) {
+            if (this.GameState == GameStates.ONEPLAYER || this.GameState == GameStates.WAITING ) {
 
                 if (getPlayers().size() == 0) {
                     getPlayers().add(new PlayerManager(p.getUniqueId(), this, 1));
@@ -122,8 +142,11 @@ public class Game {
                 Colors.sendMessage(p, Colors.prefix() + "&cYou&7 have joined the game");
                 Colors.sendMessage(p, "");
                 Colors.sendMessage(p, "  &aMap: &2&l" + getMapName());
-                Colors.sendMessage(p, "  &aAuthor: &2&l" + getMapName());
+                Colors.sendMessage(p, "  &aAuthor: &2&l" + this.MapAuthor);
                 Colors.sendMessage(p, "");
+
+                p.getInventory().setContents(KitItems);
+                p.getInventory().setArmorContents(KitArmor);
             }
             else Colors.sendMessage(p, "&cThis game already started or is starting");
 
@@ -144,6 +167,7 @@ public class Game {
 
             Colors.sendMessage(p, Colors.prefix() + "&aSuccessfully left game&6 " + getArenaName());
             p.teleport(SpawnLocation);
+            p.getInventory().clear();
 
             try {
                 getPlayers().remove(PlayerManager.getPlayerManagerFromPlayer(p));
@@ -162,17 +186,20 @@ public class Game {
          this.GameState = GameState.INGAME;
          broadcastMessage(Colors.prefix() + "&aGame started &cFIGHT!");
 
+
     }
 
     public void end(PlayerManager winner){
 
 
         winner.getGame().broadcastMessage(Colors.prefix() + "&9" + winner.getPlayer().getName() + " &7killed &c" + winner.getGame().getOpponent(winner).getPlayer().getName() );
+        this.resetArena();
         this.GameState = GameState.WAITING;
         for(PlayerManager player: this.getPlayers()){
             player.getPlayer().teleport(SpawnLocation);
             player.getPlayer().setHealth(20);
             player.getPlayer().setFoodLevel(20);
+            player.getPlayer().getInventory().clear();
             player.remove();
         }
         this.getPlayers().clear();
@@ -191,5 +218,13 @@ public class Game {
         return null;
     }
 
+    public void resetArena(){
+        if (PlacedBlocks != null){
+            for(Location location : PlacedBlocks){
+                location.getBlock().setType(Material.AIR);
+            }
+            PlacedBlocks.clear();
+        }
+    }
 
 }
