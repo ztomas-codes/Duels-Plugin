@@ -65,7 +65,16 @@ public class MainCommand implements CommandExecutor {
 
         if(args[0].equalsIgnoreCase("admin")){
             if (p.hasPermission("duels.admin")) {
-                if(args.length >= 3) {
+                if(args.length >= 3 || args.length == 2) {
+                    if (args[1].equalsIgnoreCase("setspawn")) {
+                        Duels.main.getConfig().set("SpawnLocation.World", p.getPlayer().getLocation().getWorld().getName());
+                        Duels.main.getConfig().set("SpawnLocation.x", p.getPlayer().getLocation().getX());
+                        Duels.main.getConfig().set("SpawnLocation.y", p.getPlayer().getLocation().getY());
+                        Duels.main.getConfig().set("SpawnLocation.z", p.getPlayer().getLocation().getZ());
+                        Duels.main.saveConfig();
+                        Colors.sendMessage(p, Colors.prefix() + "&aSpawnpoint set");
+                        return false;
+                    }
                     if (args[1].equalsIgnoreCase("createkit")) {
                         if (args[2] != null) {
                             Duels.main.getConfig().set("Kits." + args[2] + ".items", p.getInventory().getContents());
@@ -76,14 +85,7 @@ public class MainCommand implements CommandExecutor {
                         else{
                             Colors.sendMessage(p, Colors.prefix() + "&cPlease write name of kit");
                         }
-                    }
-                    if (args[1].equalsIgnoreCase("setspawn")) {
-                        Duels.main.getConfig().set("SpawnLocation.World", p.getPlayer().getLocation().getWorld().getName());
-                        Duels.main.getConfig().set("SpawnLocation.x", p.getPlayer().getLocation().getX());
-                        Duels.main.getConfig().set("SpawnLocation.y", p.getPlayer().getLocation().getY());
-                        Duels.main.getConfig().set("SpawnLocation.z", p.getPlayer().getLocation().getZ());
-                        Duels.main.saveConfig();
-                        Colors.sendMessage(p, Colors.prefix() + "&aSpawnpoint set");
+                        return false;
                     }
                     if (args[1].equalsIgnoreCase("arenacreate")) {
                         if (args[2] != null) {
@@ -95,6 +97,8 @@ public class MainCommand implements CommandExecutor {
                         else{
                             Colors.sendMessage(p, Colors.prefix() + "&cPlease write name of arena");
                         }
+                        return false;
+
                     }
                     if (args[1].equalsIgnoreCase("setkitname")) {
                         if (args[2] != null) {
@@ -116,6 +120,7 @@ public class MainCommand implements CommandExecutor {
                         else{
                             Colors.sendMessage(p, Colors.prefix() + "&cPlease write name of arena");
                         }
+                        return false;
                     }
                     if (args[1].equalsIgnoreCase("setmapname")) {
                         if (args[2] != null) {
@@ -134,6 +139,7 @@ public class MainCommand implements CommandExecutor {
                         else{
                             Colors.sendMessage(p, Colors.prefix() + "&cPlease write name of arena");
                         }
+                        return false;
                     }
                     if (args[1].equalsIgnoreCase("setmapauthor")) {
                         if (args[2] != null) {
@@ -152,6 +158,7 @@ public class MainCommand implements CommandExecutor {
                         else{
                             Colors.sendMessage(p, Colors.prefix() + "&cPlease write name of arena");
                         }
+                        return false;
                     }
                     if (args[1].equalsIgnoreCase("setlocation1")) {
                         if (args[2] != null) {
@@ -170,6 +177,7 @@ public class MainCommand implements CommandExecutor {
                         else{
                             Colors.sendMessage(p, Colors.prefix() + "&cPlease write name of arena");
                         }
+                        return false;
                     }
                     if (args[1].equalsIgnoreCase("setlocation2")) {
                         if (args[2] != null) {
@@ -188,12 +196,14 @@ public class MainCommand implements CommandExecutor {
                         else{
                             Colors.sendMessage(p, Colors.prefix() + "&cPlease write name of arena");
                         }
+                        return false;
                     }
-                    Colors.sendMessage(p, "&4After every changes in arenas/kit you need to reload or restart server so the plugin loads with new set arenas and kits!!!!!");
+
+                    if(args.length >= 3 || args.length == 2) Colors.sendMessage(p, "&4After every changes in arenas/kit you need to reload or restart server so the plugin loads with new set arenas and kits!!!!!");
                 }
-                else{
-                    sendCommandList(p);
-                }
+                sendCommandList(p);
+
+
             }
             else{
                 sendCommandList(p);
